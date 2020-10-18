@@ -43,13 +43,36 @@ class TestClass_cfgjson:
         #assert type(cisco_intcfg(subnet=right_ip)[1]) == str
 
 class TestClass_injson:
-    indict_noip = '''
+    instr_noip = '''
     {
         "intid": "GigabitEthernet 0/2",
         "vlanid": 3
     }
     '''
-    def test_ipreturn(self):
+
+    indict_noip = {
+        "intid": "GigabitEthernet 0/2",
+        "vlanid": 3
+    }
+    
+
+    def test_ipreturn_noinput(self):
+        testout_json = in_json_trigger()
+        assert ("159.127.0.1" in json.loads(testout_json)['genconfig'][1]) == True
+        assert ("255.255.254.0" in json.loads(testout_json)['genconfig'][1]) == True
+        assert ("dot1q 3" not in json.loads(testout_json)['genconfig'][1]) == True
+        assert ("." not in json.loads(testout_json)['genconfig'][0]) == True
+        assert ("Gi0/0" in json.loads(testout_json)['genconfig'][0]) == True
+
+    def test_ipreturn_noip(self):
+        testout_json = in_json_trigger(self.instr_noip)
+        assert ("159.127.0.1" in json.loads(testout_json)['genconfig'][2]) == True
+        assert ("255.255.254.0" in json.loads(testout_json)['genconfig'][2]) == True
+        assert ("dot1q 3" in json.loads(testout_json)['genconfig'][1]) == True
+        assert ("." in json.loads(testout_json)['genconfig'][0]) == True
+        assert ("Ethernet 0/2" in json.loads(testout_json)['genconfig'][0]) == True
+
+    def test_ipreturn_noip(self):
         testout_json = in_json_trigger(self.indict_noip)
         assert ("159.127.0.1" in json.loads(testout_json)['genconfig'][2]) == True
         assert ("255.255.254.0" in json.loads(testout_json)['genconfig'][2]) == True

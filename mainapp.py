@@ -20,6 +20,8 @@ def cisco_intcfg(subnet=default_subnet, vlanid=None, intid=default_intid, desc=d
 
     cfg_list = []
 
+    #print("cisco_intcfg")
+
     try:
         varip = ipaddress.ip_network(subnet)
     except Exception as err:
@@ -52,41 +54,57 @@ def cfglist_to_json(cfg_list):
     return out_json
 
 
-def in_json_trigger(instr):
+def in_json_trigger(injson = '{"desc": "none"}'):
     """ API input as JSON
     output the Cisco configuration
     """
-
+    
+    # Verify if the input string is in valid JSON format
+    # print(type(injson), injson)
     try:
-        in_json = json.loads(instr)
+        if type(injson) == str:
+            in_json = json.loads(injson)
+        else:
+            in_json = injson
 
+        #print(type(in_json))
         # intid = in_json['intid'] if in_json['intid'] else intid = default_intid
     except Exception as err:
         return "Error: " + str(err)
 
+    # verify if interface ID is set
     try:    
         intid = in_json['intid']
-    except KeyError as err:
+    except Exception as err:
         intid = default_intid
 
+
+    # verify if subnet is given
     try:
         subnet = in_json['subnet']
     except KeyError as err:
         subnet = default_subnet
 
+
+    # verify if interface description is given
     try:
         desc = in_json['desc']
     except KeyError as err:
         desc = default_description
 
+    # verify if vlan ID is set
     try:
         vlanid = in_json['vlanid']
     except KeyError as err:
         vlanid = None
     
+    # generate interface configuration as list
     cfg_list = cisco_intcfg(intid=intid, vlanid=vlanid, subnet=subnet, desc=desc)
+    #print(cfg_list)
+    # convert the above list to JSON
     cfg_out = cfglist_to_json(cfg_list)
     
+    # return configuration as JSON list in the format {"genconfig": [cfg_list]}
     return cfg_out
 
 
@@ -101,4 +119,5 @@ if __name__ == "__main__":
         "vlanid": 3
     }
     '''
-    print(in_json_trigger(eg_intdict))
+    #print(in_json_trigger(eg_intdict))
+    print(in_json_trigger())
